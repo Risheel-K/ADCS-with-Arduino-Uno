@@ -1,16 +1,75 @@
 # ADCS-with-Arduino-Uno
-An affordable and accurate Attitude Determination and Control System (ADCS) that uses sensor fusion and real-time control algorithms using an Arduino Uno, DC motors, and LDR sensors to orient and steady spacecraft
+This project implements a real-time Attitude Determination and Control System (ADCS) using an Arduino Uno and the Adafruit BNO055 absolute orientation sensor. The system reads precise pitch, yaw, and roll values and is designed for applications like spacecraft orientation, drone stabilization, and robotics balance control.
 
-The Attitude Determination and Control System (ADCS) is essential for spacecraft that require precise orientation control throughout their mission. It stabilizes the vehicle and maintains its desired direction despite external disturbances such as atmospheric drag, gravity gradients, and solar radiation. The system relies on sensors to determine the spacecraft’s attitude and actuators to make necessary adjustments for stability.  
+The BNO055 sensor provides fused 9-DOF orientation data, combining accelerometer, gyroscope, and magnetometer readings internally, and outputs stable Euler angles (Pitch, Yaw, Roll) over the I²C interface. The Arduino Uno processes these orientation values and sends them over serial for monitoring or control.
+Hardware Components Used:
+Component	Function
+Arduino Uno	Microcontroller for sensor interfacing and data processing
+Adafruit BNO055 Sensor	9-DOF IMU providing real-time orientation (Euler angles)
+I²C Communication (SDA/SCL)	Interface for data exchange between Arduino and BNO055
+USB Cable	Powers Arduino and enables serial communication to a PC
+Jumper Wires + Breadboard	Prototyping connections
+5V Power Supply (optional)	For standalone operation beyond USB power
+Software Modules:
+Module	Description
+Wire.h	Enables I2C communication between Arduino and BNO055 sensor
+Adafruit_Sensor.h	Unified sensor access for consistent reading formats
+Adafruit_BNO055.h	Device driver library for interfacing with the BNO055 sensor
+imumaths.h	Provides quaternion and vector math utilities used by the sensor backend
+Functional Workflow:
 
-Our ADCS implementation uses the **Adafruit BNO055 sensor**, which integrates an accelerometer, gyroscope, and magnetometer for accurate orientation sensing. When the **BNO055 operates in its normal mode**, it provides precise attitude data, allowing the system to adjust orientation using **reaction wheels powered by DC motors**, controlled via **relays**. However, if **the system enters eclipse mode** (where BNO055 fails due to low power or other constraints), the ADCS switches to **Light Dependent Resistors (LDRs)** as a redundancy mechanism. The LDRs detect sunlight intensity and direction, enabling the system to approximate orientation and stabilize the spacecraft.  
+    Initialization (setup()):
 
-An **Arduino Uno microcontroller** processes real-time sensor data and executes control algorithms to adjust the satellite’s pitch, yaw, and roll. The system maintains stability within **±20° of the target orientation**, applying corrective actions when predefined thresholds are exceeded. To ensure reliability, **simulation software** is used to test the ADCS under various mission conditions.
-To ensure the reliability and accuracy of the Attitude Determination and Control System (ADCS), multiple test codes have been developed and validated individually before integration. The testing process includes:
+        Starts the Serial communication at 115200 baud.
 
-1. LDR Testing: Verifying the functionality of Light Dependent Resistors (LDRs) for orientation approximation in eclipse mode.
-2. BNO055 Testing: Ensuring accurate attitude determination using the Adafruit BNO055 sensor.
-3. Pitch Axis Testing: Evaluating the control and stability of the satellite’s pitch axis.
-4. Roll Axis Testing: Testing the roll axis control and response to orientation changes.
-5. Yaw Axis Testing: Checking the accuracy and response of yaw axis adjustments.
-6. Full System Integration: Combining all tested components to validate overall system performance and stability.
+        Initializes the BNO055 sensor over I2C at address 0x28.
+
+        Verifies sensor connection; stops execution if the sensor is not detected.
+
+    Real-Time Loop (loop()):
+
+        Continuously reads Euler angle orientation data from the sensor:
+
+            Pitch → X-axis rotation
+
+            Yaw → Y-axis rotation
+
+            Roll → Z-axis rotation
+
+        Displays values in the Serial Monitor every 100 milliseconds.
+
+Key Features:
+
+    Full 3-axis attitude data (±360°) with minimal drift
+
+    Uses BNO055’s internal sensor fusion, no need for external algorithms
+
+    Modular and lightweight code, ideal for embedded real-time systems
+
+    Scalable for integration with reaction wheels, servos, or motor drivers
+
+    Can be extended with relay/H-bridge circuits for full ADCS actuation
+
+Use Cases / Applications:
+
+    CubeSat and picosatellite ADCS prototyping
+
+    Robotics orientation and stabilization systems
+
+    Quadcopter or drone IMU integration
+
+    Educational demos for aerospace engineering
+
+    Mechatronics and control systems labs
+
+Future Integration Potential:
+
+This module can be integrated into a complete ADCS system with:
+
+    Reaction wheels controlled via DC motors
+
+    Redundant LDR-based sun sensors for eclipse fallback
+
+    PID-based motor control for precise orientation adjustment
+
+    Closed-loop attitude correction logic for space or aerial platforms
